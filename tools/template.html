@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gulture — One Body. Many Looks.</title>
+<meta name="description" content="gulture 시안B — web prototype built from the Figma design.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Jost:wght@300;400;500;600&family=Noto+Sans+KR:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root { --ink: #121212; --paper: #fcfaf7; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--paper); color: var(--ink); overflow-x: hidden; }
+  body { font-family: 'Jost', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  #viewport { position: relative; width: 100vw; overflow: hidden; }
+  /* one stage per Figma size (1440x900 / 1920x1080 / 2048x940); only the best-fitting one is shown */
+  .stage { position: absolute; left: 0; top: 0; transform-origin: 0 0; display: none; }
+  .stage.on { display: block; }
+  .screen { position: absolute; inset: 0; display: none; }
+  .screen.on { display: block; animation: fade .45s ease both; }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+  .n { position: absolute; }
+  .t { white-space: pre; }
+  svg.n { overflow: visible; }
+
+  /* interaction states (assets/interact.js) */
+  .link, .hit, .ui { cursor: pointer; }
+  .hit { z-index: 2; }
+  .hit:hover ~ .x, .hit:active { }
+  .press { transition: filter .2s ease, transform .15s ease; }
+  .hover-dim { filter: brightness(1.25); }
+  .t.link { transition: opacity .2s ease; }
+  .t.link:hover { opacity: .55; }
+  .img.link { transition: filter .3s ease; }
+  .img.link:hover { filter: brightness(.93); }
+  .mv { transition: left .35s cubic-bezier(.3,.7,.2,1), top .35s cubic-bezier(.3,.7,.2,1), width .35s cubic-bezier(.3,.7,.2,1); }
+  .fade { transition: opacity .3s ease, color .3s ease, background .3s ease; }
+  .field { position: absolute; background: transparent; border: 0; outline: none; font-family: 'Jost', sans-serif; color: var(--ink); z-index: 3; }
+  .field::placeholder { color: inherit; opacity: 1; }
+  .pop { animation: pop .35s ease; }
+  @keyframes pop { 50% { transform: scale(1.25); } }
+
+  #toast { position: fixed; left: 50%; bottom: 32px; transform: translate(-50%, 12px); background: #121212; color: #fff;
+           font: 400 13px 'Jost', sans-serif; letter-spacing: .16em; padding: 14px 26px; opacity: 0; pointer-events: none;
+           transition: opacity .25s ease, transform .25s ease; z-index: 20; text-transform: uppercase; }
+  #toast.on { opacity: 1; transform: translate(-50%, 0); }
+
+  #idx { position: fixed; left: 14px; bottom: 14px; z-index: 9; width: 34px; height: 34px; border-radius: 50%; border: 0;
+         background: rgba(18,18,18,.78); color: #fff; font: 400 17px 'Jost', sans-serif; line-height: 34px; cursor: pointer;
+         opacity: .3; transition: opacity .2s; }
+  #idx:hover, #idx:focus-visible { opacity: 1; }
+  #menu { position: fixed; inset: 0; background: rgba(252,250,247,.98); z-index: 10; display: none; padding: 64px 6vw; overflow-y: auto; }
+  #menu.on { display: block; animation: fade .3s ease both; }
+  #menu header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 36px; }
+  #menu header svg { width: 110px; height: 38px; }
+  #menu button { background: none; border: 0; font: 500 13px 'Jost', sans-serif; letter-spacing: .2em; cursor: pointer; color: var(--ink); }
+  #menu nav { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); border-top: 1px solid var(--ink); }
+  #menu a { display: flex; gap: 18px; align-items: baseline; padding: 16px 0; border-bottom: 1px solid var(--ink); margin-right: 24px;
+            color: var(--ink); text-decoration: none; font-size: 16px; letter-spacing: .04em; }
+  #menu a span { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 22px; min-width: 32px; }
+  #menu a:hover, #menu a.cur { opacity: .45; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">{{SYMBOLS}}</svg>
+<div id="viewport">
+{{STAGES}}
+</div>
+
+<button id="idx" type="button" aria-label="All screens" title="All screens">≡</button>
+<div id="menu" role="dialog" aria-label="Screens">
+  <header><svg viewBox="0 0 102 35"><use href="#s0"/></svg><button type="button" id="close">CLOSE</button></header>
+  <nav>{{MENU}}</nav>
+</div>
+<div id="toast" role="status"></div>
+
+<script>window.ORDER = {{ORDER}};</script>
+<script src="assets/interact.js"></script>
+</body>
+</html>
