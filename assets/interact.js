@@ -46,25 +46,29 @@
     document.documentElement.style.overflowY = portrait ? 'auto' : 'hidden';
   }
 
-  // full-width photos / bars reach the window edges instead of leaving paper-coloured bars
+  // photos / bars touching the frame edge reach the window edge instead of leaving paper-coloured bars
   function bleed(mx, my) {
     const sw = +stage.dataset.w, sh = +stage.dataset.h;
     stage.querySelectorAll('.screen > .n:not(.t):not(svg):not(.hit)').forEach(el => {
       const b = box(el);
-      if (b[0] > 0.5 || b[2] < sw - 1) return;
-      const w2 = sw + 2 * mx, h2 = b[1] + b[3] >= sh - 1 ? b[3] + my : b[3];
-      el.style.left = -mx + 'px';
+      const extL = b[0] <= 0.5, extR = b[0] + b[2] >= sw - 1, extB = b[3] > 3 && b[1] + b[3] >= sh - 1;
+      if (!extL && !extR && !extB) return;
+      const L = b[0] - (extL ? mx : 0);
+      const w2 = b[2] + (extL ? mx : 0) + (extR ? mx : 0), h2 = b[3] + (extB ? my : 0);
+      el.style.left = L + 'px';
       el.style.width = w2 + 'px';
       if (b[3] > 3) el.style.height = h2 + 'px';
       if (el._bg === undefined) el._bg = [el.style.backgroundSize, el.style.backgroundPosition];
       const sz = (el._bg[0] || '').match(/^([\d.-]+)px ([\d.-]+)px$/);
       const ps = (el._bg[1] || '').match(/^([\d.-]+)px ([\d.-]+)px$/);
       if (sz && ps) {
+        // grow the photo around the original box centre just enough to cover the extended box
         const iw = +sz[1], ih = +sz[2], px = +ps[1], py = +ps[2];
-        const f = Math.max(1, w2 / iw, (h2 - py) / ih);
-        const c = (b[2] / 2 - px) / iw;
+        const c = b[0] + b[2] / 2, il = b[0] + px, ir = il + iw;
+        const f = Math.max(1, (c - (b[0] - (extL ? mx : 0))) / Math.max(1e-6, c - il),
+          (b[0] + b[2] + (extR ? mx : 0) - c) / Math.max(1e-6, ir - c), h2 / Math.max(1e-6, ih + py));
         el.style.backgroundSize = iw * f + 'px ' + ih * f + 'px';
-        el.style.backgroundPosition = (w2 / 2 - c * iw * f) + 'px ' + py * f + 'px';
+        el.style.backgroundPosition = (c - (c - il) * f - L) + 'px ' + py * f + 'px';
       }
     });
   }
